@@ -12,6 +12,7 @@ from scipy.misc import imsave, imresize
 from fid_score import evaluate_fid_score
 import pickle
 from dataset import load_dataset, load_test_dataset
+from PIL import Image
 
 
 def main():
@@ -98,11 +99,24 @@ def main():
     img_recons_sample = stich_imgs(img_recons)
     img_gens1_sample = stich_imgs(img_gens1)
     img_gens2_sample = stich_imgs(img_gens2)
-    plt.imsave(os.path.join(exp_folder, 'original_sample.jpg'), img_originals_sample)
-    plt.imsave(os.path.join(exp_folder, 'recon_sample.jpg'), img_recons_sample)
-    plt.imsave(os.path.join(exp_folder, 'gen1_sample.jpg'), img_gens1_sample)
-    plt.imsave(os.path.join(exp_folder, 'gen2_sample.jpg'), img_gens2_sample)
-
+    
+    #########################
+    #
+    #    Edited by JC
+    #
+    #########################
+    Image.fromarray((img_originals_sample*255).astype(np.uint8)).save(os.path.join(exp_folder, 'original_sample.jpg'))
+    Image.fromarray((img_recons_sample*255).astype(np.uint8)).save(os.path.join(exp_folder, 'recon_sample.jpg'))
+    Image.fromarray((img_gens1_sample*255).astype(np.uint8)).save(os.path.join(exp_folder, 'gen1_sample.jpg'))
+    Image.fromarray((img_gens2_sample*255).astype(np.uint8)).save(os.path.join(exp_folder, 'gen2_sample.jpg'))
+    
+    #plt.imsave(os.path.join(exp_folder, 'original_sample.jpg'), img_originals_sample)
+    #plt.imsave(os.path.join(exp_folder, 'recon_sample.jpg'), img_recons_sample)
+    #plt.imsave(os.path.join(exp_folder, 'gen1_sample.jpg'), img_gens1_sample)
+    #plt.imsave(os.path.join(exp_folder, 'gen2_sample.jpg'), img_gens2_sample)
+    #########################
+    
+    
     # calculating FID score
     tf.reset_default_graph()
     fid_recon = evaluate_fid_score(img_recons.copy(), args.dataset, args.root_folder, True)

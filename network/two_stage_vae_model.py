@@ -225,7 +225,7 @@ class Wae(TwoStageVaeModel):
             # Edited by JC
             y = tf.nn.relu(batch_norm(tf.layers.conv2d_transpose(y, 128, 5, 2, 'same'), self.is_training, 'bn4'))
 
-            y = tf.layers.conv2d_transpose(y, 3, 5, 1, 'same')
+            y = tf.layers.conv2d_transpose(y, 1, 5, 1, 'same')
             self.x_hat = tf.nn.sigmoid(y)
 
             self.loggamma_x = tf.get_variable('loggamma_x', [], tf.float32, tf.zeros_initializer())
