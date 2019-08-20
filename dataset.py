@@ -1,6 +1,6 @@
 import os 
 import numpy as np 
-from scipy.misc import imsave, imresize
+#from scipy.misc import imsave, imresize
 
 
 def load_dataset(name, root_folder):
