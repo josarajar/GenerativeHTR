@@ -8,7 +8,7 @@ import time
 import matplotlib 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt 
-from scipy.misc import imsave, imresize
+#from scipy.misc import imsave, imresize
 from fid_score import evaluate_fid_score
 import pickle
 from dataset import load_dataset, load_test_dataset
