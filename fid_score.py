@@ -9,7 +9,7 @@ import numpy as np
 import os
 import gzip, pickle
 import tensorflow as tf
-from scipy.misc import imread
+#from scipy.misc import imread
 import urllib
 
 import pathlib
