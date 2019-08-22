@@ -37,6 +37,10 @@ def load_dataset(name, root_folder):
         x = np.load(os.path.join(data_folder, 'train.npy'))
         side_length = 128
         channels = 1
+    elif name.lower() == 'icfhr2018_gray_general_data':
+        x = np.load(os.path.join(data_folder, 'train.npy'))
+        side_length = 128
+        channels = 1
     else:
         raise Exception('No such dataset called {}.'.format(name))
     return x, side_length, channels
@@ -73,6 +77,10 @@ def load_test_dataset(name, root_folder):
         side_length = 128
         channels = 3
     elif name.lower() == 'icfhr2018_gray':
+        x = np.load(os.path.join(data_folder, 'test.npy'))
+        side_length = 128
+        channels = 1
+    elif name.lower() == 'icfhr2018_gray_general_data':
         x = np.load(os.path.join(data_folder, 'test.npy'))
         side_length = 128
         channels = 1

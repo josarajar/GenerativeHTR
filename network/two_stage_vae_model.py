@@ -216,8 +216,8 @@ class Wae(TwoStageVaeModel):
         with tf.variable_scope('decoder'):
             y = self.z 
 
-            y = tf.nn.relu(tf.layers.dense(y, 8*8*1024))
-            y = tf.reshape(y, [-1, 8, 8, 1024])
+            y = tf.nn.relu(tf.layers.dense(y, 8*128*1024))
+            y = tf.reshape(y, [-1, 8, 128, 1024])
 
             y = tf.nn.relu(batch_norm(tf.layers.conv2d_transpose(y, 512, 5, 2, 'same'), self.is_training, 'bn1'))
             y = tf.nn.relu(batch_norm(tf.layers.conv2d_transpose(y, 256, 5, 2, 'same'), self.is_training, 'bn2'))
