@@ -54,6 +54,10 @@ class TwoStageVaeModel(object):
             self.summary1.append(tf.summary.scalar('gen_loss', self.gen_loss1))
             self.summary1.append(tf.summary.scalar('loss', self.loss1))
             self.summary1.append(tf.summary.scalar('gamma', self.gamma_x))
+            self.summary1.append(tf.summary.scalar('mu_z', tf.reduce_sum(self.mu_z)))
+            self.summary1.append(tf.summary.scalar('sd_z', tf.reduce_sum(self.sd_z)))
+            self.summary1.append(tf.summary.scalar('logsd_z', tf.reduce_sum(self.logsd_z)))
+            self.summary1.append(tf.summary.scalar('batch_size', self.batch_size))
             self.summary1 = tf.summary.merge(self.summary1)
 
         with tf.name_scope('stage2_summary'):
@@ -286,6 +290,47 @@ class Resnet(TwoStageVaeModel):
                 y = scale_block(y, dims[i+1], self.is_training, 'scale'+str(i), self.block_per_scale, self.depth_per_block, self.kernel_size)
             
             y = tf.layers.conv2d(y, data_depth, self.kernel_size, 1, 'same')
+            self.x_hat = tf.nn.sigmoid(y)
+
+            self.loggamma_x = tf.get_variable('loggamma_x', [], tf.float32, tf.zeros_initializer())
+            self.gamma_x = tf.exp(self.loggamma_x)
+
+# Added by JC           
+class Wae_rect(TwoStageVaeModel):
+    def __init__(self, x, latent_dim=64, second_depth=3, second_dim=1024, cross_entropy_loss=False):
+        super(Wae_rect, self).__init__(x, latent_dim, second_depth, second_dim, cross_entropy_loss)
+
+    def build_encoder1(self):
+        with tf.variable_scope('encoder'):
+            y = self.x 
+
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d(y, 16, 5, 1, 'same'), self.is_training, 'bn1'))
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d(y, 32, 5, 2, 'same'), self.is_training, 'bn2'))
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d(y, 64, 5, 2, 'same'), self.is_training, 'bn3'))
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d(y, 128, 5, 2, 'same'), self.is_training, 'bn4'))
+            # Edited by JC
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d(y, 256, 5, 2, 'same'), self.is_training, 'bn5'))
+            
+            y = tf.layers.flatten(y)
+            self.mu_z = tf.layers.dense(y, self.latent_dim)
+            self.logsd_z = tf.layers.dense(y, self.latent_dim)
+            self.sd_z = tf.exp(self.logsd_z)
+            self.z = self.mu_z + tf.random_normal([self.batch_size, self.latent_dim]) * self.sd_z 
+
+    def build_decoder1(self):
+        with tf.variable_scope('decoder'):
+            y = self.z 
+
+            y = tf.nn.relu(tf.layers.dense(y, 8*128*256))
+            y = tf.reshape(y, [-1, 8, 128, 256])
+
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d_transpose(y, 128, 5, 2, 'same'), self.is_training, 'bn1'))
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d_transpose(y, 64, 5, 2, 'same'), self.is_training, 'bn2'))
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d_transpose(y, 32, 5, 2, 'same'), self.is_training, 'bn3'))
+            # Edited by JC
+            y = tf.nn.relu(batch_norm(tf.layers.conv2d_transpose(y, 16, 5, 2, 'same'), self.is_training, 'bn4'))
+
+            y = tf.layers.conv2d_transpose(y, 1, 5, 1, 'same')
             self.x_hat = tf.nn.sigmoid(y)
 
             self.loggamma_x = tf.get_variable('loggamma_x', [], tf.float32, tf.zeros_initializer())

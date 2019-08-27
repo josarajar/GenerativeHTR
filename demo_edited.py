@@ -1,6 +1,7 @@
 import argparse 
 import os 
-from network.two_stage_vae_model import *
+#from network.two_stage_vae_model import *
+from network.two_stage_vae_model_TF import *
 import numpy as np 
 import tensorflow as tf 
 import math 
@@ -26,8 +27,9 @@ def main():
         os.makedirs(model_path)
 
     # dataset
-    x, side_length, channels = load_dataset(args.dataset, args.root_folder)
-    input_x = tf.placeholder(tf.uint8, [args.batch_size, side_length, side_length, channels], 'x')
+    x, height, width, channels = load_dataset(args.dataset, args.root_folder)
+        
+    input_x = tf.placeholder(tf.uint8, [args.batch_size, height, width, channels], 'x')
     num_sample = np.shape(x)[0]
     print('Num Sample = {}.'.format(num_sample))
 
@@ -85,7 +87,7 @@ def main():
         saver.restore(sess, os.path.join(model_path, 'stage2'))
 
     # test dataset 
-    x, side_length, channels = load_test_dataset(args.dataset, args.root_folder)
+    x, height, width, channels = load_test_dataset(args.dataset, args.root_folder)
     #np.random.shuffle(x)
     x = x[0:10000]
 
@@ -193,6 +195,6 @@ if __name__ == '__main__':
     print(args)
 
     os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
+    #os.environ['CUDA_VISIBLE_DEVICES'] = str(args.gpu)
 
     main()
